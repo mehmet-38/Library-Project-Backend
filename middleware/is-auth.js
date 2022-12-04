@@ -1,17 +1,19 @@
+const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 
-const isAuth = (req, res, next) => {
+let decodedToken;
+const isAuth = async (req, res, next) => {
   const authHeader = req.get("Authorization");
   if (!authHeader) {
     res.json("Not authanticated");
   }
-
   const token = authHeader.split(" ")[1];
-  let decodedToken;
   try {
     //jwt verify kodu giriş yaptıgımza olusturulan tokeni decode ederek dogru olup olmadıgına bakıyor
     decodedToken = jwt.verify(token, "secret");
-    return res.json(decodedToken);
+    const user = await User.findOne({ _id: decodedToken.userId });
+    req.currentUser = user;
+    return next();
   } catch (error) {
     res.status(500).json("Token is not availabe" + error);
   }
@@ -19,6 +21,13 @@ const isAuth = (req, res, next) => {
   // autharize basarılı ise token decode edilerek giriş yapılı kullanıcıya id ataması yapılır
 
   req.userId = decodedToken.userId;
-  next();
 };
-module.exports = { isAuth };
+const isAdmin = (req, res, next) => {
+  //console.log(req.currentUser);
+  if (req.currentUser.role == 1) {
+    next();
+  } else {
+    res.json("Yetkisiz işlem");
+  }
+};
+module.exports = { isAuth, isAdmin };

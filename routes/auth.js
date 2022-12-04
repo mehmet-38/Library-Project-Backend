@@ -10,7 +10,6 @@ router.put(
     body("email").isEmail().withMessage("Please enter a valid email."),
     body("password").trim().isLength({ min: 6 }),
     body("name").trim().notEmpty(),
-    body("role").isNumeric().withMessage("Please enter a number"),
   ],
   authController.signup
 );

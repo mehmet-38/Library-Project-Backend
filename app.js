@@ -11,6 +11,8 @@ app.use(boyParser.json());
 
 app.use(routes.auth);
 
+app.use(routes.book);
+
 require("./utils/mongooseDB");
 app.listen(PORT, () => {
   console.log(`Server is listening on ${PORT}`);

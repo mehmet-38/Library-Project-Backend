@@ -11,7 +11,6 @@ const signup = (req, res) => {
   const email = req.body.email;
   const name = req.body.name;
   const password = req.body.password;
-  const role = req.body.role;
 
   // bcrypt kullanarak passwordu şifreliyoruz ve şifreleme basarılı olursa veritabanına kullanıcı ekliyoruz
   bcrypt
@@ -21,7 +20,6 @@ const signup = (req, res) => {
         email: email,
         password: hashedPassword,
         name: name,
-        role: role,
       });
       return user.save();
     })
@@ -56,11 +54,16 @@ const login = (req, res) => {
         {
           email: loadedUser.email,
           userId: loadedUser._id.toString(),
+          //role: loadedUser.role.toString(),
         }, //2. paramtere kendi belirledigimiz bu jwt nin ismi gibi bilgi daha sonra kullanabilmek için tanımlıyoruz
         "secret", //expiresin ise olusan tokenin ne zaman sonra sonlanacagını yazıyor burada 1 saat olarak belirledik
         { expiresIn: "1h" }
       );
-      res.status(200).json({ token: token, userId: loadedUser._id.toString() });
+      res.status(200).json({
+        token: token,
+        userId: loadedUser._id.toString(),
+        userRole: loadedUser.role.toString(),
+      });
     })
     .catch((err) => {
       console.log("login error" + err);
