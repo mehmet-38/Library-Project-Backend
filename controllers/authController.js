@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const sendEmail = require("../utils/email");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const signup = (req, res) => {
@@ -30,7 +31,36 @@ const signup = (req, res) => {
       res.json("get some error" + err);
     });
 };
+const forgotPassword = async (req, res) => {
+  const email = req.body.email;
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    return res.status(400).json("User couldnt found this email");
+  }
+  // Generate random reset token
+  const resetToken = user.createPasswordResetToken();
+  await user.save({ validateBeforeSave: false });
 
+  const resetURL = `http://localhost:5000/reset-password/${resetToken}`;
+  const message = `Forgot password! Submit request with new passord to: ${resetURL}`;
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: "your password reset token 10 min",
+      message,
+    });
+    res.status(200).json({
+      status: "success",
+      message: "Token send email",
+    });
+  } catch (error) {
+    (user.passwordResetToken = undefined),
+      (user.passwordResetExpires = undefined);
+    await user.save({ validateBeforeSave: false });
+    return res.status(400).json("There is an error");
+  }
+};
+const resetPassword = (req, res) => {};
 const login = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -56,8 +86,8 @@ const login = (req, res) => {
           userId: loadedUser._id.toString(),
           //role: loadedUser.role.toString(),
         }, //2. paramtere kendi belirledigimiz bu jwt nin ismi gibi bilgi daha sonra kullanabilmek için tanımlıyoruz
-        "secret", //expiresin ise olusan tokenin ne zaman sonra sonlanacagını yazıyor burada 1 saat olarak belirledik
-        { expiresIn: "1h" }
+        "secret" //expiresin ise olusan tokenin ne zaman sonra sonlanacagını yazıyor burada 1 saat olarak belirledik
+        //{ expiresIn: "1h" }
       );
       res.status(200).json({
         token: token,
@@ -73,4 +103,6 @@ const login = (req, res) => {
 module.exports = {
   signup,
   login,
+  forgotPassword,
+  resetPassword,
 };
