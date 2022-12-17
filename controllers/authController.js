@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const sendEmail = require("../utils/email");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
@@ -60,7 +61,42 @@ const forgotPassword = async (req, res) => {
     return res.status(400).json("There is an error");
   }
 };
-const resetPassword = (req, res) => {};
+const resetPassword = async (req, res, next) => {
+  // get user with token
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(req.params.token)
+    .digest("hex");
+
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  // check user
+  if (!user) {
+    res.status(400).json("Couldnt found user with token");
+  }
+  bcrypt.hash(req.body.password, 12).then((hashedPassword) => {
+    user.password = hashedPassword;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    return user.save();
+  });
+
+  const token = jwt.sign(
+    {
+      email: user.email,
+      userId: user._id.toString(),
+    },
+    "secret"
+  );
+  res.status(200).json({
+    token: token,
+    userId: user._id.toString(),
+    userRole: user.role.toString(),
+  });
+};
 const login = (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
