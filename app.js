@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 app.use(boyParser.json());
 
 app.use(routes.auth);
-
+app.use(routes.users);
 app.use(routes.book);
 
 require("./utils/mongooseDB");
