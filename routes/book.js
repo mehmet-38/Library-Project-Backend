@@ -15,4 +15,5 @@ router.post(
   bookController.addBook
 );
 router.get("/book", bookController.getBook);
+router.post("/borrow-book", isAuth, isAdmin, bookController.borrowBook);
 module.exports = router;

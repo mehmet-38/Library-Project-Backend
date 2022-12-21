@@ -1,4 +1,6 @@
 const Book = require("../models/book");
+const User = require("../models/user");
+const BorrowBook = require("../models/borrowBook");
 const { validationResult } = require("express-validator");
 
 const addBook = (req, res) => {
@@ -31,8 +33,24 @@ const getBook = async (req, res) => {
     res.status(500).send(error);
   }
 };
-
+const borrowBook = (req, res) => {
+  const userId = req.currentUser._id;
+  //const user = User.findOne({ _id: userId });
+  const bookId = req.body.bookId;
+  const borrowBook = new BorrowBook({
+    active: true,
+    userId: userId,
+    bookId: bookId,
+  });
+  try {
+    borrowBook.save();
+    res.status(200).json("Successfully applied");
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
 module.exports = {
   addBook,
   getBook,
+  borrowBook,
 };
