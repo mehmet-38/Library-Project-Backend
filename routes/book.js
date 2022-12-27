@@ -14,6 +14,7 @@ router.post(
   isAdmin,
   bookController.addBook
 );
+router.get("/my-book", isAuth, bookController.getBookWithId);
 router.get("/book", bookController.getBook);
-router.post("/borrow-book", isAuth, isAdmin, bookController.borrowBook);
+router.post("/borrow-book", isAuth, bookController.borrowBook);
 module.exports = router;

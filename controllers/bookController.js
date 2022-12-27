@@ -33,9 +33,28 @@ const getBook = async (req, res) => {
     res.status(500).send(error);
   }
 };
+const getBookWithId = async (req, res) => {
+  try {
+    const userBorrowBook = await BorrowBook.find({
+      userId: req.currentUser._id,
+    });
+    var list = [];
+    for (let i = 0; i < userBorrowBook.length; i++) {
+      const element = userBorrowBook[i];
+
+      list.push(element.bookId);
+    }
+
+    const bookList = await Book.find({ _id: list });
+
+    res.status(200).json(bookList);
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
 const borrowBook = (req, res) => {
   const userId = req.currentUser._id;
-  //const user = User.findOne({ _id: userId });
+
   const bookId = req.body.bookId;
   const borrowBook = new BorrowBook({
     active: true,
@@ -53,4 +72,5 @@ module.exports = {
   addBook,
   getBook,
   borrowBook,
+  getBookWithId,
 };

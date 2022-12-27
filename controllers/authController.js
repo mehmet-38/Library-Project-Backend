@@ -42,7 +42,7 @@ const forgotPassword = async (req, res) => {
   const resetToken = user.createPasswordResetToken();
   await user.save({ validateBeforeSave: false });
 
-  const resetURL = `http://localhost:5000/reset-password/${resetToken}`;
+  const resetURL = `http://localhost:8080/reset-password/${resetToken}`;
   const message = `Forgot password! Submit request with new passord to: ${resetURL}`;
   try {
     await sendEmail({
@@ -97,11 +97,11 @@ const resetPassword = async (req, res, next) => {
     userRole: user.role.toString(),
   });
 };
-const login = (req, res) => {
+const login = async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   let loadedUser;
-  User.findOne({ email: email })
+  await User.findOne({ email: email })
     .then((user) => {
       if (!user) {
         res.status(400).json("User with this email could not found");

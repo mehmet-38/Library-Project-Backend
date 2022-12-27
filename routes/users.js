@@ -5,6 +5,7 @@ const { body } = require("express-validator");
 const userController = require("../controllers/userController");
 
 router.get("/users", isAuth, isAdmin, userController.getUser);
+router.get("/user", isAuth, userController.getUserWithId);
 router.post(
   "/users",
   [

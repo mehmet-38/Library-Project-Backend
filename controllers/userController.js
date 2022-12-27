@@ -10,6 +10,16 @@ const getUser = async (req, res) => {
   }
 };
 
+const getUserWithId = async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.currentUser._id });
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(404).json(error);
+  }
+};
+
 const addUser = (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -40,4 +50,5 @@ const addUser = (req, res) => {
 module.exports = {
   getUser,
   addUser,
+  getUserWithId,
 };
