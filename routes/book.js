@@ -2,7 +2,7 @@ const express = require("express");
 const bookController = require("../controllers/bookController");
 const { body } = require("express-validator");
 const router = express.Router();
-const { isAuth, isAdmin } = require("../middleware/is-auth");
+const { isAuth, isAdmin, isEditor } = require("../middleware/is-auth");
 router.post(
   "/book",
   [
@@ -11,7 +11,7 @@ router.post(
     body("book_type").trim().notEmpty(),
   ],
   isAuth,
-  isAdmin,
+  isEditor,
   bookController.addBook
 );
 router.get("/my-book", isAuth, bookController.getBookWithId);

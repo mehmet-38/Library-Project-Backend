@@ -20,7 +20,7 @@ const isAuth = async (req, res, next) => {
 
   // autharize basarılı ise token decode edilerek giriş yapılı kullanıcıya id ataması yapılır
 
-  req.userId = decodedToken.userId;
+  //req.userId = decodedToken.userId;
 };
 const isAdmin = (req, res, next) => {
   //console.log(req.currentUser);
@@ -30,4 +30,11 @@ const isAdmin = (req, res, next) => {
     res.json("Yetkisiz işlem");
   }
 };
-module.exports = { isAuth, isAdmin };
+const isEditor = (req, res, next) => {
+  if (req.currentUser.role == 2) {
+    next();
+  } else {
+    res.json("Yetkisiz islem");
+  }
+};
+module.exports = { isAuth, isAdmin, isEditor };
